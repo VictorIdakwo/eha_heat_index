@@ -1,0 +1,30 @@
+name: Deploy Streamlit App
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  run-app:
+    runs-on: ubuntu-latest
+    env:
+      EE_SA_JSON: ${{ secrets.EE_SA_JSON }}
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run Streamlit app
+        run: |
+          streamlit run nigeria_heat_index.py --server.headless true

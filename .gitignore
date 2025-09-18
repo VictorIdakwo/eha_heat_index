@@ -1,0 +1,14 @@
+# Python virtual environment
+venv/
+
+# Python cache
+__pycache__/
+
+# Keys folder (local service account files)
+keys/
+
+# Ignore all JSON files in keys folder
+keys/*.json
+
+# Ignore all JSON files in keys folder
+.streamlit/*.json
