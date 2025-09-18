@@ -4,6 +4,7 @@ import geemap.foliumap as geemap  # Folium backend for Streamlit
 import json
 import os
 import tempfile
+from io import StringIO
 import sys, types
 sys.modules["blessings"] = types.ModuleType("blessings")
 
