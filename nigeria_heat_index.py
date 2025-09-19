@@ -7,39 +7,38 @@ import tempfile
 from io import StringIO
 import sys, types
 sys.modules["blessings"] = types.ModuleType("blessings")
+from google.oauth2 import service_account
 
+# Fix blessing issue for Streamlit Cloud
+sys.modules["blessings"] = types.ModuleType("blessings")
+
+# Required scopes for Earth Engine
+EE_SCOPES = ["https://www.googleapis.com/auth/earthengine"]
+
+# Initialize Earth Engine credentials
 if "earthengine" in st.secrets:
     # Streamlit Cloud secret
     sa_info = dict(st.secrets["earthengine"])
-    service_account = sa_info["client_email"]
-
-    with tempfile.NamedTemporaryFile(mode="w+", delete=False, suffix=".json") as f:
-        json.dump(sa_info, f)
-        key_file = f.name
-
-    credentials = ee.ServiceAccountCredentials(service_account, key_file)
+    credentials = service_account.Credentials.from_service_account_info(
+        sa_info, scopes=EE_SCOPES
+    )
 
 elif os.getenv("EE_SA_JSON"):
-    # GitHub Actions secret
-    sa_json = os.getenv("EE_SA_JSON")
-    sa_info = json.loads(sa_json)
-    service_account = sa_info["client_email"]
-
-    with tempfile.NamedTemporaryFile(mode="w+", delete=False, suffix=".json") as f:
-        json.dump(sa_info, f)
-        key_file = f.name
-
-    credentials = ee.ServiceAccountCredentials(service_account, key_file)
+    # GitHub Actions / CI environment variable
+    sa_info = json.loads(os.getenv("EE_SA_JSON"))
+    credentials = service_account.Credentials.from_service_account_info(
+        sa_info, scopes=EE_SCOPES
+    )
 
 else:
-    # Local development (with file in keys/)
-    service_account = "heatindex-analytics@ee-victoridakwo.iam.gserviceaccount.com"
+    # Local development from file
     key_file = "keys/service_account.json"
-    credentials = ee.ServiceAccountCredentials(service_account, key_file)
+    credentials = service_account.Credentials.from_service_account_file(
+        key_file, scopes=EE_SCOPES
+    )
 
 # Initialize Earth Engine
 ee.Initialize(credentials)
-
 
 # =======================
 # STEP 2: Define boundary & dates
