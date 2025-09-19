@@ -5,6 +5,7 @@ import json
 import os
 import tempfile
 from io import StringIO
+from branca.element import Template, MacroElement
 import sys, types
 sys.modules["blessings"] = types.ModuleType("blessings")
 from google.oauth2 import service_account
@@ -103,7 +104,7 @@ st.set_page_config(page_title="Climate Explorer", layout="wide")
 st.title("🌍 Climate Data Explorer (1980–2025)")
 
 col1, col2, col3 = st.columns(3)
-year = col1.slider("Year", 1980, 2019, 2000)
+year = col1.slider("Year", 1980, 2025, 2012)
 month = col2.slider("Month", 1, 12, 7)
 day = col3.slider("Day", 1, 31, 15)
 
@@ -127,17 +128,37 @@ Map.addLayer(boundary_styled, {}, 'Northern Nigeria')
 Map.to_streamlit(height=700)
 
 # =======================
-# STEP 6: Legend
+# STEP 6: Heat Index Legend (Streamlit-compatible)
 # =======================
-with st.expander("📖 Legend"):
-    st.markdown("""
-    **Heat Index (°F)**  
-    - Blue → Cool  
-    - Cyan → Mild  
-    - Green → Warm  
-    - Yellow → Hot  
-    - Orange → Very Hot  
-    - Red → Extreme  
-    - Purple → Dangerous  
-    """)
 
+def display_heat_index_legend():
+    legend_html = """
+    <div style="
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background-color: white;
+        padding: 10px;
+        font-size: 12px;
+        font-family: Arial, sans-serif;
+        border: 1px solid black;
+        border-radius: 5px;
+        width: 180px;
+        z-index: 9999;
+    ">
+        <b style="display:block; text-align:center; margin-bottom:5px;">Heat Index (°F)</b>
+        <div style="margin-bottom:8px; text-align:center;">
+            <span style="
+                display:block; 
+                width:100%; 
+                height:12px; 
+                background: linear-gradient(to right, blue, cyan, green, yellow, orange, red, purple);
+                margin-bottom:3px;
+            "></span>
+            0 – 150 °F
+        </div>
+    </div>
+    """
+    st.markdown(legend_html, unsafe_allow_html=True)
+
+display_heat_index_legend()
